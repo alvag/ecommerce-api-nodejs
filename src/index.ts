@@ -1,7 +1,6 @@
 import { app } from './app';
 import { dbConnection } from './config/dbConnection';
 
-
 dbConnection().then( () => {
     const port = process.env.PORT || 3000;
     app.listen( port, () => {

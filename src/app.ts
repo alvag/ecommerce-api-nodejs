@@ -9,6 +9,10 @@ dotenv.config();
 const app = express();
 app.use( express.json() );
 
+app.get( '/', ( req, res ) => {
+    res.send( 'Hello World!' );
+} );
+
 app.all( '*', ( req, res ) => {
     throw new NotFoundError();
 } );
