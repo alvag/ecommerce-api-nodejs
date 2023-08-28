@@ -1,20 +1,22 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import { errorHandler } from './middlewares';
+import { NotFoundError } from './errors';
 
 dotenv.config();
 
 const app = express();
 app.use( express.json() );
 
-const corsOptions = {
-    origin: 'http://localhost:3000',
-    credentials: true,
-    exposedHeaders: [ 'set-cookie' ],
-};
+app.all( '*', ( req, res ) => {
+    throw new NotFoundError();
+} );
 
-app.use( cors( corsOptions ) );
-app.options( '*', cors( corsOptions ) );
+app.use( errorHandler );
+
+
+app.use( cors() );
 
 
 export { app };
