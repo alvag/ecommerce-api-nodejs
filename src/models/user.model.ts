@@ -80,9 +80,14 @@ userSchema.methods.generateToken = function () {
 };
 
 userSchema.pre( 'save', async function ( next ) {
-    const user = await User.exists( { email: this.email } );
+    let user = await User.exists( { email: this.email } );
     if ( user ) {
         throw new BadRequestError( 'Email is already in use' );
+    }
+
+    user = await User.exists( { mobile: this.mobile } );
+    if ( user ) {
+        throw new BadRequestError( 'Mobile number is already in use' );
     }
 
     if ( this.isModified( 'password' ) ) {

@@ -1,9 +1,15 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { registerUser, signIn } from '../controllers/user.controller';
+import { deleteUserById, getUserById, getUsers, registerUser, signIn } from '../controllers/user.controller';
 import { validateRequest } from '../middlewares';
 
 const router = Router();
+
+router.get( '/', getUsers );
+
+router.get( '/:id', getUserById );
+
+router.delete( '/:id', deleteUserById );
 
 router.post( '/register', [
     body( 'email' ).isEmail().withMessage( 'Email must be valid' ),
@@ -16,6 +22,7 @@ router.post( '/register', [
     body( 'mobile' ).trim().notEmpty().withMessage( 'Mobile is required' ),
     validateRequest,
 ], registerUser );
+
 router.post( '/login',
     [
         body( 'email' ).isEmail().withMessage( 'Email must be valid' ),
@@ -26,5 +33,6 @@ router.post( '/login',
         validateRequest,
     ],
     signIn );
+
 
 export default router;

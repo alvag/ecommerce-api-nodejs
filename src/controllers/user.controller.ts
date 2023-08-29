@@ -37,3 +37,46 @@ export const signIn = async ( req: Request, res: Response, next: NextFunction ) 
         next( error );
     }
 };
+
+export const getUsers = async ( req: Request, res: Response, next: NextFunction ) => {
+    try {
+        const users = await User.find();
+        res.json( users );
+    } catch ( error ) {
+        next( error );
+    }
+};
+
+
+export const getUserById = async ( req: Request, res: Response, next: NextFunction ) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById( id );
+
+        if ( !user ) {
+            throw new BadRequestError( 'User not found' );
+        }
+
+        res.json( user );
+    } catch ( error ) {
+        next( error );
+    }
+};
+
+export const deleteUserById = async ( req: Request, res: Response, next: NextFunction ) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById( id );
+
+        if ( !user ) {
+            throw new BadRequestError( 'User not found' );
+        }
+
+        await User.findByIdAndDelete( id );
+
+        res.json( { message: 'User deleted successfully' } );
+
+    } catch ( error ) {
+        next( error );
+    }
+};
