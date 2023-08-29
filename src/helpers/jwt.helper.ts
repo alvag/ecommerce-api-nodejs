@@ -1,12 +1,11 @@
-import jwt, { TokenExpiredError } from 'jsonwebtoken';
-import { InternalServerError, UnauthorizedError } from '../errors';
+import jwt from 'jsonwebtoken';
+import { NotAuthorizedError } from '../errors';
 
 export class Jwt {
-    static create( id: string, email: string ) {
+    static create( uid: string ) {
         return jwt.sign(
             {
-                id,
-                email,
+                uid,
             },
             process.env.TOKEN_SECRET_KEY!,
             { expiresIn: process.env.TOKEN_EXPIRES },
@@ -16,12 +15,9 @@ export class Jwt {
     static verify( token: string ) {
         try {
             const payload = jwt.verify( token, process.env.TOKEN_SECRET_KEY! );
-            return payload as { id: string, email: string };
-        } catch ( error ) {
-            if ( error instanceof TokenExpiredError ) {
-                throw new UnauthorizedError();
-            }
-            throw new InternalServerError();
+            return payload as { uid: string };
+        } catch {
+            throw new NotAuthorizedError();
         }
     }
 }

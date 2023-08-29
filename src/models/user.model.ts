@@ -1,6 +1,7 @@
 import { Document, model, Model, Schema } from 'mongoose';
 import { BadRequestError } from '../errors';
 import { Jwt, Password } from '../helpers';
+import { Role } from '../enums';
 
 interface UserAttrs {
     firstName: string;
@@ -8,6 +9,7 @@ interface UserAttrs {
     email: string;
     password: string;
     mobile: string;
+    isActive?: boolean;
     role?: string;
 }
 
@@ -17,6 +19,7 @@ interface UserDocument extends Document {
     email: string;
     password: string;
     mobile: string;
+    isActive: boolean;
     role: string;
 
     isPasswordMatched( password: string ): Promise<boolean>;
@@ -53,10 +56,31 @@ const userSchema = new Schema( {
     },
     role: {
         type: String,
-        default: 'user',
-        enum: [ 'user', 'admin' ],
+        default: Role.USER,
+        enum: [ Role.USER, Role.ADMIN ],
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
+    cart: {
+        type: Array,
+        default: [],
+    },
+    address: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Address',
+        },
+    ],
+    wishList: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Product',
+        },
+    ],
 }, {
+    timestamps: true,
     versionKey: false,
     toJSON: {
         transform( doc, rec ) {
@@ -76,7 +100,7 @@ userSchema.methods.isPasswordMatched = async function ( password: string ) {
 };
 
 userSchema.methods.generateToken = function () {
-    return Jwt.create( this._id, this.email );
+    return Jwt.create( this._id );
 };
 
 userSchema.pre( 'save', async function ( next ) {

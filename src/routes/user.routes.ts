@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 import {
+    changeStatus,
     deleteUserById,
     getUserById,
     getUsers,
@@ -8,17 +9,37 @@ import {
     signIn,
     updateUserById,
 } from '../controllers/user.controller';
-import { validateRequest } from '../middlewares';
+import { isAdmin, isAuth, validateRequest } from '../middlewares';
 
 const router = Router();
 
-router.get( '/', getUsers );
+router.get( '/', [ isAuth ], getUsers );
 
-router.get( '/:id', getUserById );
+router.get( '/:id', [
+        query( 'id' ).isMongoId().withMessage( 'Invalid id' ),
+        validateRequest,
+        isAuth,
+    ],
+    getUserById,
+);
 
-router.delete( '/:id', deleteUserById );
+router.delete( '/:id', [
+        query( 'id' ).isMongoId().withMessage( 'Invalid id' ),
+        validateRequest,
+        isAuth, isAdmin,
+    ],
+    deleteUserById,
+);
 
-router.patch( '/:id', updateUserById );
+router.patch( '/', [ isAuth ], updateUserById );
+
+router.patch( '/change-status/:id', [
+    query( 'id' ).isMongoId().withMessage( 'Invalid id' ),
+    body( 'isActive' ).isBoolean().withMessage( 'isActive must be boolean' ),
+    validateRequest,
+    isAuth,
+    isAdmin,
+], changeStatus );
 
 router.post( '/register', [
     body( 'email' ).isEmail().withMessage( 'Email must be valid' ),
@@ -41,7 +62,8 @@ router.post( '/login',
         } ).withMessage( 'Password must be between 4 and 20 characters' ),
         validateRequest,
     ],
-    signIn );
+    signIn,
+);
 
 
 export default router;
