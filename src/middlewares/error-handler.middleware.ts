@@ -12,5 +12,6 @@ export const errorHandler: ErrorRequestHandler = ( error: Error, req: Request, r
     res.status( 500 ).json( {
         message: 'Internal server error',
         statusCode: 500,
+        stack: error?.stack,
     } );
 };

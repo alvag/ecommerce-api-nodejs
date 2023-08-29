@@ -4,3 +4,4 @@ export * from './bad-request-error';
 export * from './database-connection-error';
 export * from './unauthorized-error';
 export * from './internal-server-error';
+export * from './request-validation-error';
