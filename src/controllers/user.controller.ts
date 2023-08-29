@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { User } from '../models';
-import { BadRequestError } from '../errors';
+import { BadRequestError, NotFoundError } from '../errors';
 
 export const registerUser = async ( req: Request, res: Response, next: NextFunction ) => {
     try {
@@ -54,7 +54,7 @@ export const getUserById = async ( req: Request, res: Response, next: NextFuncti
         const user = await User.findById( id );
 
         if ( !user ) {
-            throw new BadRequestError( 'User not found' );
+            throw new NotFoundError( 'User not found' );
         }
 
         res.json( user );
@@ -69,12 +69,32 @@ export const deleteUserById = async ( req: Request, res: Response, next: NextFun
         const user = await User.findById( id );
 
         if ( !user ) {
-            throw new BadRequestError( 'User not found' );
+            throw new NotFoundError( 'User not found' );
         }
 
         await User.findByIdAndDelete( id );
 
         res.json( { message: 'User deleted successfully' } );
+
+    } catch ( error ) {
+        next( error );
+    }
+};
+
+export const updateUserById = async ( req: Request, res: Response, next: NextFunction ) => {
+    try {
+        const { id } = req.params;
+        const { email, password, firstName, lastName, mobile } = req.body;
+
+        let user = await User.findById( id );
+
+        if ( !user ) {
+            throw new NotFoundError( 'User not found' );
+        }
+
+        user = await User.findByIdAndUpdate( id, { id, email, password, firstName, lastName, mobile }, { new: true } );
+
+        return res.json( user );
 
     } catch ( error ) {
         next( error );

@@ -98,6 +98,21 @@ userSchema.pre( 'save', async function ( next ) {
 } );
 
 userSchema.pre( 'findOneAndUpdate', async function ( next ) {
+    if ( this.get( 'email' ) ) {
+        const user = await User.findOne( { email: this.get( 'email' ) } );
+
+        if ( user && user._id.toString() !== this.get( 'id' ) ) {
+            throw new BadRequestError( 'Email is already in use' );
+        }
+    }
+
+    if ( this.get( 'mobile' ) ) {
+        const user = await User.findOne( { mobile: this.get( 'mobile' ) } );
+        if ( user && user._id.toString() !== this.get( 'id' ) ) {
+            throw new BadRequestError( 'Mobile number is already in use' );
+        }
+    }
+
     if ( this.get( 'password' ) ) {
         this.set( 'password', await Password.hash( this.get( 'password' ) ) );
     }

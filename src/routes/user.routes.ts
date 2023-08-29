@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { deleteUserById, getUserById, getUsers, registerUser, signIn } from '../controllers/user.controller';
+import {
+    deleteUserById,
+    getUserById,
+    getUsers,
+    registerUser,
+    signIn,
+    updateUserById,
+} from '../controllers/user.controller';
 import { validateRequest } from '../middlewares';
 
 const router = Router();
@@ -10,6 +17,8 @@ router.get( '/', getUsers );
 router.get( '/:id', getUserById );
 
 router.delete( '/:id', deleteUserById );
+
+router.patch( '/:id', updateUserById );
 
 router.post( '/register', [
     body( 'email' ).isEmail().withMessage( 'Email must be valid' ),
