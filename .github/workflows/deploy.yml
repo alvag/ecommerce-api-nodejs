@@ -38,7 +38,7 @@ jobs:
             echo PORT=${{ vars.PORT }} >> .env
             echo MONGODB_URL=${{ vars.DB_HOST }} >> .env
             echo TOKEN_SECRET_KEY=${{ secrets.TOKEN_SECRET_KEY }} >> .env
-            echo TOKEN_EXPIRE=${{ vars.TOKEN_EXPIRE }} >> .env
+            echo TOKEN_EXPIRES=${{ vars.TOKEN_EXPIRES }} >> .env
             echo "cat .env"
             cat .env
             ls -la
