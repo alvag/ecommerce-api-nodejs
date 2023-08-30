@@ -112,8 +112,6 @@ productSchema.statics.build = ( attrs: ProductAttrs ) => {
 
 productSchema.pre( 'save', async function ( next ) {
 
-    this.slug = slugify( this.slug || this.title, { lower: true } );
-
     const product = await Product.exists( { slug: this.slug } );
     if ( product ) {
         throw new BadRequestError( 'Product slug is already in use' );

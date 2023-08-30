@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProduct, getProductById, getProducts, updateProduct } from '../controllers';
+import { createProduct, deleteProduct, getProductById, getProducts, updateProduct } from '../controllers';
 import { isAdmin, isAuth, validateRequest } from '../middlewares';
 import { body, param } from 'express-validator';
 
@@ -28,6 +28,13 @@ router.get( '/:id', [
         validateRequest,
     ],
     getProductById );
+
+router.delete( '/:id', [
+        param( 'id' ).isMongoId().withMessage( 'Invalid id' ),
+        validateRequest,
+        isAuth, isAdmin,
+    ],
+    deleteProduct );
 
 router.patch( '/:id', [
     param( 'id' ).isMongoId().withMessage( 'Invalid id' ),
