@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body, query } from 'express-validator';
-import { changeStatus, deleteUserById, getUserById, getUsers, updateUserById } from '../controllers/user.controller';
+import { changeStatus, deleteUserById, getUserById, getUsers, updateUserById } from '../controllers';
 import { isAdmin, validateRequest } from '../middlewares';
 
 const router = Router();

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { validateRequest } from '../middlewares';
-import { refreshToken, registerUser, signIn, singOut } from '../controllers/auth.controller';
+import { refreshToken, registerUser, signIn, singOut } from '../controllers';
 
 const router = Router();
 
