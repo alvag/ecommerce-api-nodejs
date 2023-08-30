@@ -1,6 +1,6 @@
 import { Document, model, Model, Schema } from 'mongoose';
-import { Brand, Color } from '../enums';
 import { BadRequestError } from '../errors';
+import slugify from 'slugify';
 
 interface ProductAttrs {
     title: string;
@@ -10,12 +10,12 @@ interface ProductAttrs {
     category: string;
     quantity: number;
     images?: string[];
-    color?: string;
+    color: string;
     ratings?: {
         star: number;
         postedBy: string;
     }[],
-    brand?: string;
+    brand: string;
     sold?: number;
 }
 
@@ -64,6 +64,7 @@ const productSchema = new Schema( {
     category: {
         type: Schema.Types.ObjectId,
         ref: 'Category',
+        required: true,
     },
     quantity: {
         type: Number,
@@ -74,7 +75,7 @@ const productSchema = new Schema( {
     },
     color: {
         type: String,
-        enum: Object.values( Color ),
+        required: true,
     },
     ratings: [
         {
@@ -86,8 +87,9 @@ const productSchema = new Schema( {
         },
     ],
     brand: {
-        type: String,
-        enum: Object.values( Brand ),
+        type: Schema.Types.ObjectId,
+        ref: 'Brand',
+        required: true,
     },
     sold: {
         type: Number,
@@ -109,10 +111,26 @@ productSchema.statics.build = ( attrs: ProductAttrs ) => {
 };
 
 productSchema.pre( 'save', async function ( next ) {
-    this.slug = this.slug.split( ' ' ).join( '-' );
+
+    this.slug = slugify( this.slug || this.title, { lower: true } );
+
     const product = await Product.exists( { slug: this.slug } );
     if ( product ) {
         throw new BadRequestError( 'Product slug is already in use' );
+    }
+
+    next();
+} );
+
+productSchema.pre( 'findOneAndUpdate', async function ( next ) {
+    if ( this.get( 'slug' ) ) {
+        const slug = slugify( this.get( 'slug' ), { lower: true } );
+        const product = await Product.exists( { slug } );
+        if ( product && product._id.toString() !== this.getQuery()._id ) {
+            throw new BadRequestError( 'Product slug is already in use' );
+        }
+
+        this.set( 'slug', slug );
     }
 
     next();
