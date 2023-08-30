@@ -2,13 +2,13 @@ import jwt from 'jsonwebtoken';
 import { NotAuthorizedError } from '../errors';
 
 export class Jwt {
-    static create( uid: string ) {
+    static create( uid: string, expiresIn = process.env.TOKEN_EXPIRES ) {
         return jwt.sign(
             {
                 uid,
             },
             process.env.TOKEN_SECRET_KEY!,
-            { expiresIn: process.env.TOKEN_EXPIRES },
+            { expiresIn },
         );
     }
 

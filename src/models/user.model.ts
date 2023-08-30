@@ -24,7 +24,7 @@ interface UserDocument extends Document {
 
     isPasswordMatched( password: string ): Promise<boolean>;
 
-    generateToken(): string;
+    generateToken( expiresIn?: string ): string;
 }
 
 interface UserModel extends Model<UserDocument> {
@@ -99,8 +99,8 @@ userSchema.methods.isPasswordMatched = async function ( password: string ) {
     return await Password.compare( this.password, password );
 };
 
-userSchema.methods.generateToken = function () {
-    return Jwt.create( this._id );
+userSchema.methods.generateToken = function ( expiresIn?: string ) {
+    return Jwt.create( this._id, expiresIn );
 };
 
 userSchema.pre( 'save', async function ( next ) {
