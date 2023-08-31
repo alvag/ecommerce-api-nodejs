@@ -1,20 +1,23 @@
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { Request } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 import { errorHandler } from './middlewares';
 import { NotFoundError } from './errors';
+import appRoutes from './routes';
 
 dotenv.config();
 
 const app = express();
 app.use( express.json() );
+app.use( cookieParser() );
+app.use( morgan( 'dev' ) );
 
-app.get( '/', ( req, res ) => {
-    res.send( 'Hello World!' );
-} );
+app.use( '/api', appRoutes );
 
-app.all( '*', ( req, res ) => {
-    throw new NotFoundError();
+app.all( '*', ( req: Request, res ) => {
+    throw new NotFoundError( `Not found: ${ req.originalUrl }` );
 } );
 
 app.use( errorHandler );
