@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
+import { body, cookie } from 'express-validator';
 import { validateRequest } from '../middlewares';
-import { refreshToken, registerUser, signIn, singOut } from '../controllers/auth.controller';
+import { refreshToken, registerUser, signIn, singOut } from '../controllers';
 
 const router = Router();
 
@@ -31,6 +31,9 @@ router.post( '/login',
 
 router.get( '/logout', singOut );
 
-router.get( '/refresh-token', refreshToken );
+router.get( '/refresh-token', [
+    cookie( 'refreshToken' ).notEmpty().withMessage( 'Refresh token is required' ),
+    validateRequest,
+], refreshToken );
 
 export default router;
