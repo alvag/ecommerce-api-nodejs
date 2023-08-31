@@ -3,6 +3,7 @@ import { Product } from '../models';
 import { NotFoundError } from '../errors';
 import slugify from 'slugify';
 import { QueryFilter } from '../helpers/query.helper';
+import { Pagination } from '../helpers/pagination.helper';
 
 export const createProduct = async ( req: Request, res: Response, next: NextFunction ) => {
     try {
@@ -34,10 +35,23 @@ export const getProductById = async ( req: Request, res: Response, next: NextFun
 
 export const getProducts = async ( req: Request, res: Response, next: NextFunction ) => {
     try {
+        const { perPage, page, fields = '' } = req.query;
+
+        const _limit = Number.isNaN( parseInt( perPage as string ) ) || parseInt( perPage as string ) <= 0 ? 10 : parseInt( perPage as string );
+        const _page = Number.isNaN( parseInt( page as string ) ) || parseInt( page as string ) <= 0 ? 1 : parseInt( page as string );
+
         const products = await Product.find( QueryFilter.productQuery( req.query ) )
             .sort( QueryFilter.sortFilter( `${ req.query.sort || 'updatedAt,desc' }` ) )
-            .select( '-sold' );
-        res.json( products );
+            .limit( _limit )
+            .skip( ( _page - 1 ) * _limit )
+            .select( fields ? fields.toString().split( ',' ) : '' );
+
+        const totalProducts = await Product.countDocuments( QueryFilter.productQuery( req.query ) );
+
+        res.json( {
+            pagination: Pagination.paginate( _limit, _page, totalProducts, req ),
+            products,
+        } );
     } catch ( error ) {
         next( error );
     }
